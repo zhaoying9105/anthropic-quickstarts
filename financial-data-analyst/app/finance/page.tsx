@@ -70,8 +70,7 @@ interface FileUpload {
 }
 
 const models: Model[] = [
-  { id: "claude-3-haiku-20240307", name: "Claude 3 Haiku" },
-  { id: "claude-3-5-sonnet-20240620", name: "Claude 3.5 Sonnet" },
+  { id: "gpt-4o-2024-08-06", name: "gpt4o" },
 ];
 
 // Updated APIResponse interface
@@ -109,6 +108,12 @@ const SafeChartRenderer: React.FC<{ data: ChartData }> = ({ data }) => {
     );
   }
 };
+
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'.replace(/[x]/g, function() {
+    return (Math.random() * 16 | 0).toString(16);
+  });
+}
 
 const MessageComponent: React.FC<MessageComponentProps> = ({ message }) => {
   console.log("Message with chart data:", message); // Add this line for debugging
@@ -198,7 +203,7 @@ export default function AIChat() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedModel, setSelectedModel] = useState(
-    "claude-3-5-sonnet-20240620",
+    "gpt-4o-2024-08-06",
   );
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chartEndRef = useRef<HTMLDivElement>(null);
@@ -375,14 +380,14 @@ export default function AIChat() {
     setIsScrollLocked(true);
 
     const userMessage: Message = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       role: "user",
       content: input,
       file: currentUpload || undefined,
     };
 
     const thinkingMessage: Message = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       role: "assistant",
       content: "thinking",
     };
@@ -453,7 +458,7 @@ export default function AIChat() {
       setMessages((prev) => {
         const newMessages = [...prev];
         newMessages[newMessages.length - 1] = {
-          id: crypto.randomUUID(),
+          id: generateUUID(),
           role: "assistant",
           content: data.content,
           hasToolUse: data.hasToolUse || !!data.toolUse,
@@ -469,7 +474,7 @@ export default function AIChat() {
       setMessages((prev) => {
         const newMessages = [...prev];
         newMessages[newMessages.length - 1] = {
-          id: crypto.randomUUID(),
+          id: generateUUID(),
           role: "assistant",
           content: "I apologize, but I encountered an error. Please try again.",
         };
@@ -490,7 +495,7 @@ export default function AIChat() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       if (input.trim() || currentUpload) {
         const form = e.currentTarget.form;
